@@ -48,11 +48,11 @@ func (t *Tx) HGETALL(key string) (kvMap map[string]string, err error) {
 	if b == nil {
 		return
 	}
-	err = b.ForEach(func(k, v []byte) error {
+	_ = b.ForEach(func(k, v []byte) error {
 		kvMap[string(k)] = string(v)
 		return nil
 	})
-	return kvMap, nil
+	return
 }
 
 func (t *Tx) HKEYS(key string) (keys []string, err error) {
