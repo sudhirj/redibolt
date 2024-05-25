@@ -32,9 +32,6 @@ func TestHashes(t *testing.T) {
 	err = rdb.HSET("k1", "f2", "v2")
 	assert.NoError(t, err)
 
-	err = rdb.HSET("k2", "f1", "v1")
-	assert.NoError(t, err)
-
 	keys, err := rdb.HKEYS("k1")
 	assert.NoError(t, err)
 	assert.ElementsMatch(t, []string{"f1", "f2"}, keys)
@@ -60,6 +57,17 @@ func TestHashes(t *testing.T) {
 	keys, err = rdb.HKEYS("k1")
 	assert.NoError(t, err)
 	assert.Empty(t, keys)
+
+	err = rdb.HMSET("k2", map[string]string{"f1": "v1", "f2": "v2", "f3": "v3"})
+	assert.NoError(t, err)
+
+	keys, err = rdb.HKEYS("k2")
+	assert.NoError(t, err)
+	assert.ElementsMatch(t, []string{"f1", "f2", "f3"}, keys)
+
+	vals, err := rdb.HMGET("k2", "f1", "f3")
+	assert.NoError(t, err)
+	assert.Equal(t, []string{"v1", "v3"}, vals)
 }
 
 func makeTestDB(t *testing.T) *bolt.DB {
