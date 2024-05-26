@@ -1,8 +1,8 @@
 package redibolt
 
-type Redibolt interface {
+type RediboltTx interface {
 	HDEL(key string, field string) (err error)
-	HDELALL(key string) (err error)
+	DEL(key ...string) (err error)
 	HEXISTS(key string, field string) (exists bool, err error)
 	HGET(key string, field string) (val string, err error)
 	HGETALL(key string) (kvMap map[string]string, err error)
@@ -17,4 +17,8 @@ type Redibolt interface {
 	SISMEMBER(key string, member string) (isMember bool, err error)
 	SMEMBERS(key string) (members []string, err error)
 	SREM(key string, member string) (err error)
+}
+
+type RediboltDB interface {
+	RediboltTx
 }

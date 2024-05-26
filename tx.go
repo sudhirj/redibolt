@@ -2,16 +2,12 @@ package redibolt
 
 import "github.com/boltdb/bolt"
 
-func NewTx(tx *bolt.Tx) *Tx {
+func NewTx(tx *bolt.Tx) RediboltTx {
 	return &Tx{tx}
 }
 
 type Tx struct {
 	boltTx *bolt.Tx
-}
-
-func (t *Tx) BoltTx() *bolt.Tx {
-	return t.boltTx
 }
 
 func (t *Tx) HDEL(key string, field string) (err error) {
@@ -22,8 +18,11 @@ func (t *Tx) HDEL(key string, field string) (err error) {
 	return t.boltTx.Bucket([]byte(key)).Delete([]byte(field))
 }
 
-func (t *Tx) HDELALL(key string) (err error) {
-	return t.boltTx.DeleteBucket([]byte(key))
+func (t *Tx) DEL(key ...string) (err error) {
+	for _, k := range key {
+		_ = t.boltTx.DeleteBucket([]byte(k))
+	}
+	return
 }
 
 func (t *Tx) HEXISTS(key string, field string) (exists bool, err error) {

@@ -51,7 +51,7 @@ func TestHashes(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, 1, count)
 
-	err = rdb.HDELALL("k1")
+	err = rdb.DEL("k1")
 	assert.NoError(t, err)
 
 	keys, err = rdb.HKEYS("k1")
@@ -68,6 +68,31 @@ func TestHashes(t *testing.T) {
 	vals, err := rdb.HMGET("k2", "f1", "f3")
 	assert.NoError(t, err)
 	assert.Equal(t, []string{"v1", "v3"}, vals)
+}
+
+func TestNonExistentHashes(t *testing.T) {
+	rdb := NewDB(makeTestDB(t))
+
+	_, err := rdb.HGET("nokey", "f1")
+	assert.NoError(t, err)
+
+	_, err = rdb.HGETALL("nokey")
+	assert.NoError(t, err)
+
+	_, err = rdb.HKEYS("nokey")
+	assert.NoError(t, err)
+
+	_, err = rdb.HLEN("nokey")
+	assert.NoError(t, err)
+
+	_, err = rdb.HMGET("nokey", "f1", "f2")
+	assert.NoError(t, err)
+
+	err = rdb.HDEL("nokey", "f1")
+	assert.NoError(t, err)
+
+	err = rdb.DEL("nokey")
+	assert.NoError(t, err)
 }
 
 func makeTestDB(t *testing.T) *bolt.DB {

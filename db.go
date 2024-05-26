@@ -6,12 +6,8 @@ type DB struct {
 	boltDB *bolt.DB
 }
 
-func NewDB(boltDB *bolt.DB) *DB {
+func NewDB(boltDB *bolt.DB) RediboltDB {
 	return &DB{boltDB}
-}
-
-func (db *DB) BoltDB() *bolt.DB {
-	return db.boltDB
 }
 
 func (db *DB) HDEL(key string, field string) (err error) {
@@ -20,9 +16,9 @@ func (db *DB) HDEL(key string, field string) (err error) {
 	})
 }
 
-func (db *DB) HDELALL(key string) (err error) {
+func (db *DB) DEL(key ...string) (err error) {
 	return db.boltDB.Update(func(tx *bolt.Tx) error {
-		return NewTx(tx).HDELALL(key)
+		return NewTx(tx).DEL(key...)
 	})
 }
 
