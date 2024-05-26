@@ -3,21 +3,21 @@ package redibolt
 import "github.com/boltdb/bolt"
 
 func NewTx(tx *bolt.Tx) RediboltTx {
-	return &Tx{tx}
+	return &rtx{tx}
 }
 
-type Tx struct {
+type rtx struct {
 	boltTx *bolt.Tx
 }
 
-func (t *Tx) DEL(key ...string) (err error) {
+func (t *rtx) DEL(key ...string) (err error) {
 	for _, k := range key {
 		_ = t.boltTx.DeleteBucket([]byte(k))
 	}
 	return
 }
 
-func (t *Tx) HDEL(key string, field string) (err error) {
+func (t *rtx) HDEL(key string, field string) (err error) {
 	b := t.boltTx.Bucket([]byte(key))
 	if b == nil {
 		return
@@ -25,7 +25,7 @@ func (t *Tx) HDEL(key string, field string) (err error) {
 	return t.boltTx.Bucket([]byte(key)).Delete([]byte(field))
 }
 
-func (t *Tx) HEXISTS(key string, field string) (exists bool, err error) {
+func (t *rtx) HEXISTS(key string, field string) (exists bool, err error) {
 	b := t.boltTx.Bucket([]byte(key))
 	if b == nil {
 		return
@@ -33,7 +33,7 @@ func (t *Tx) HEXISTS(key string, field string) (exists bool, err error) {
 	return b.Get([]byte(field)) != nil, nil
 }
 
-func (t *Tx) HGET(key string, field string) (val string, err error) {
+func (t *rtx) HGET(key string, field string) (val string, err error) {
 	b := t.boltTx.Bucket([]byte(key))
 	if b == nil {
 		return
@@ -41,7 +41,7 @@ func (t *Tx) HGET(key string, field string) (val string, err error) {
 	return string(b.Get([]byte(field))), nil
 }
 
-func (t *Tx) HGETALL(key string) (kvMap map[string]string, err error) {
+func (t *rtx) HGETALL(key string) (kvMap map[string]string, err error) {
 	kvMap = make(map[string]string)
 	b := t.boltTx.Bucket([]byte(key))
 	if b == nil {
@@ -54,7 +54,7 @@ func (t *Tx) HGETALL(key string) (kvMap map[string]string, err error) {
 	return
 }
 
-func (t *Tx) HKEYS(key string) (keys []string, err error) {
+func (t *rtx) HKEYS(key string) (keys []string, err error) {
 	b := t.boltTx.Bucket([]byte(key))
 	if b == nil {
 		return
@@ -66,7 +66,7 @@ func (t *Tx) HKEYS(key string) (keys []string, err error) {
 	return
 }
 
-func (t *Tx) HLEN(key string) (count int, err error) {
+func (t *rtx) HLEN(key string) (count int, err error) {
 	b := t.boltTx.Bucket([]byte(key))
 	if b == nil {
 		return
@@ -74,7 +74,7 @@ func (t *Tx) HLEN(key string) (count int, err error) {
 	return b.Stats().KeyN, nil
 }
 
-func (t *Tx) HMGET(key string, fields ...string) (vals []string, err error) {
+func (t *rtx) HMGET(key string, fields ...string) (vals []string, err error) {
 	b := t.boltTx.Bucket([]byte(key))
 	if b == nil {
 		return
@@ -85,7 +85,7 @@ func (t *Tx) HMGET(key string, fields ...string) (vals []string, err error) {
 	return
 }
 
-func (t *Tx) HMSET(key string, fields map[string]string) (err error) {
+func (t *rtx) HMSET(key string, fields map[string]string) (err error) {
 	b, err := t.boltTx.CreateBucketIfNotExists([]byte(key))
 	if err != nil {
 		return err
@@ -98,7 +98,7 @@ func (t *Tx) HMSET(key string, fields map[string]string) (err error) {
 	return
 }
 
-func (t *Tx) HSET(key string, field string, value string) (err error) {
+func (t *rtx) HSET(key string, field string, value string) (err error) {
 	b, err := t.boltTx.CreateBucketIfNotExists([]byte(key))
 	if err != nil {
 		return err
@@ -106,22 +106,22 @@ func (t *Tx) HSET(key string, field string, value string) (err error) {
 	return b.Put([]byte(field), []byte(value))
 }
 
-func (t *Tx) SADD(key string, member string) (err error) {
+func (t *rtx) SADD(key string, member string) (err error) {
 	return t.HSET(key, member, "")
 }
 
-func (t *Tx) SCARD(key string) (count int, err error) {
+func (t *rtx) SCARD(key string) (count int, err error) {
 	return t.HLEN(key)
 }
 
-func (t *Tx) SISMEMBER(key string, member string) (isMember bool, err error) {
+func (t *rtx) SISMEMBER(key string, member string) (isMember bool, err error) {
 	return t.HEXISTS(key, member)
 }
 
-func (t *Tx) SMEMBERS(key string) (members []string, err error) {
+func (t *rtx) SMEMBERS(key string) (members []string, err error) {
 	return t.HKEYS(key)
 }
 
-func (t *Tx) SREM(key string, member string) (err error) {
+func (t *rtx) SREM(key string, member string) (err error) {
 	return t.HDEL(key, member)
 }
