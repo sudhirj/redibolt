@@ -6,8 +6,20 @@ type db struct {
 	boltDB *bolt.DB
 }
 
-func NewDB(boltDB *bolt.DB) RediboltDB {
+func NewDB(boltDB *bolt.DB) DB {
 	return &db{boltDB}
+}
+
+func (db *db) MULTIUPDATE(f func(tx Tx) error) error {
+	return db.boltDB.Update(func(tx *bolt.Tx) error {
+		return f(NewTx(tx))
+	})
+}
+
+func (db *db) MULTIREAD(f func(tx ReadTx) error) error {
+	return db.boltDB.View(func(tx *bolt.Tx) error {
+		return f(NewTx(tx))
+	})
 }
 
 func (db *db) DEL(key ...string) (err error) {

@@ -163,6 +163,37 @@ func TestSets(t *testing.T) {
 	assert.False(t, isMember)
 }
 
+func TestTransactions(t *testing.T) {
+	rdb := NewDB(makeTestDB(t))
+
+	err := rdb.MULTIUPDATE(func(tx Tx) error {
+		err := tx.SADD("s1", "m1")
+		assert.NoError(t, err)
+
+		err = tx.HSET("k1", "f1", "v1")
+		assert.NoError(t, err)
+		return nil
+	})
+	assert.NoError(t, err)
+
+	count, err := rdb.SCARD("s1")
+	assert.NoError(t, err)
+	assert.Equal(t, 1, count)
+
+	err = rdb.MULTIREAD(func(tx ReadTx) error {
+		isMember, err := tx.SISMEMBER("s1", "m1")
+		assert.NoError(t, err)
+		assert.True(t, isMember)
+
+		val, err := tx.HGET("k1", "f1")
+		assert.NoError(t, err)
+		assert.Equal(t, "v1", val)
+
+		return nil
+	})
+	assert.NoError(t, err)
+}
+
 func makeTestDB(t *testing.T) *bolt.DB {
 	tmpDB, err := os.CreateTemp("", t.Name())
 	t.Cleanup(func() { _ = os.Remove(tmpDB.Name()) })

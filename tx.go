@@ -2,7 +2,7 @@ package redibolt
 
 import "github.com/boltdb/bolt"
 
-func NewTx(tx *bolt.Tx) RediboltTx {
+func NewTx(tx *bolt.Tx) Tx {
 	return &rtx{tx}
 }
 
