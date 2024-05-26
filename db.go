@@ -10,15 +10,15 @@ func NewDB(boltDB *bolt.DB) RediboltDB {
 	return &DB{boltDB}
 }
 
-func (db *DB) HDEL(key string, field string) (err error) {
-	return db.boltDB.Update(func(tx *bolt.Tx) error {
-		return NewTx(tx).HDEL(key, field)
-	})
-}
-
 func (db *DB) DEL(key ...string) (err error) {
 	return db.boltDB.Update(func(tx *bolt.Tx) error {
 		return NewTx(tx).DEL(key...)
+	})
+}
+
+func (db *DB) HDEL(key string, field string) (err error) {
+	return db.boltDB.Update(func(tx *bolt.Tx) error {
+		return NewTx(tx).HDEL(key, field)
 	})
 }
 

@@ -95,6 +95,74 @@ func TestNonExistentHashes(t *testing.T) {
 	assert.NoError(t, err)
 }
 
+func TestNonExistentSets(t *testing.T) {
+	rdb := NewDB(makeTestDB(t))
+
+	count, err := rdb.SCARD("nokey")
+	assert.NoError(t, err)
+	assert.Equal(t, 0, count)
+
+	err = rdb.SREM("nokey", "m1")
+	assert.NoError(t, err)
+
+	isMember, err := rdb.SISMEMBER("nokey", "m1")
+	assert.NoError(t, err)
+	assert.False(t, isMember)
+
+	members, err := rdb.SMEMBERS("nokey")
+	assert.NoError(t, err)
+	assert.Empty(t, members)
+}
+
+func TestSets(t *testing.T) {
+	rdb := NewDB(makeTestDB(t))
+
+	err := rdb.SADD("s1", "m1")
+	assert.NoError(t, err)
+
+	count, err := rdb.SCARD("s1")
+	assert.NoError(t, err)
+	assert.Equal(t, 1, count)
+
+	isMember, err := rdb.SISMEMBER("s1", "m1")
+	assert.NoError(t, err)
+	assert.True(t, isMember)
+
+	members, err := rdb.SMEMBERS("s1")
+	assert.NoError(t, err)
+	assert.ElementsMatch(t, []string{"m1"}, members)
+
+	err = rdb.SADD("s1", "m2")
+	assert.NoError(t, err)
+
+	count, err = rdb.SCARD("s1")
+	assert.NoError(t, err)
+	assert.Equal(t, 2, count)
+
+	isMember, err = rdb.SISMEMBER("s1", "m2")
+	assert.NoError(t, err)
+	assert.True(t, isMember)
+
+	members, err = rdb.SMEMBERS("s1")
+	assert.NoError(t, err)
+	assert.ElementsMatch(t, []string{"m1", "m2"}, members)
+
+	err = rdb.SREM("s1", "m1")
+	assert.NoError(t, err)
+
+	count, err = rdb.SCARD("s1")
+	assert.NoError(t, err)
+	assert.Equal(t, 1, count)
+
+	isMember, err = rdb.SISMEMBER("s1", "m1")
+	assert.NoError(t, err)
+	assert.False(t, isMember)
+
+	isMember, err = rdb.SISMEMBER("s1", "nonmember")
+	assert.NoError(t, err)
+	assert.False(t, isMember)
+}
+
 func makeTestDB(t *testing.T) *bolt.DB {
 	tmpDB, err := os.CreateTemp("", t.Name())
 	t.Cleanup(func() { _ = os.Remove(tmpDB.Name()) })

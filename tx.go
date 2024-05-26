@@ -10,19 +10,19 @@ type Tx struct {
 	boltTx *bolt.Tx
 }
 
+func (t *Tx) DEL(key ...string) (err error) {
+	for _, k := range key {
+		_ = t.boltTx.DeleteBucket([]byte(k))
+	}
+	return
+}
+
 func (t *Tx) HDEL(key string, field string) (err error) {
 	b := t.boltTx.Bucket([]byte(key))
 	if b == nil {
 		return
 	}
 	return t.boltTx.Bucket([]byte(key)).Delete([]byte(field))
-}
-
-func (t *Tx) DEL(key ...string) (err error) {
-	for _, k := range key {
-		_ = t.boltTx.DeleteBucket([]byte(k))
-	}
-	return
 }
 
 func (t *Tx) HEXISTS(key string, field string) (exists bool, err error) {

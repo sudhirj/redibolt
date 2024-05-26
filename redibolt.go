@@ -1,8 +1,8 @@
 package redibolt
 
 type RediboltTx interface {
-	HDEL(key string, field string) (err error)
 	DEL(key ...string) (err error)
+	HDEL(key string, field string) (err error)
 	HEXISTS(key string, field string) (exists bool, err error)
 	HGET(key string, field string) (val string, err error)
 	HGETALL(key string) (kvMap map[string]string, err error)
