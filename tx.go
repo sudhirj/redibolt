@@ -1,6 +1,9 @@
 package redibolt
 
-import "github.com/boltdb/bolt"
+import (
+	"github.com/boltdb/bolt"
+	"golang.org/x/exp/maps"
+)
 
 func NewTx(tx *bolt.Tx) Tx {
 	return &rtx{tx}
@@ -106,8 +109,13 @@ func (t *rtx) HSET(key string, field string, value string) (err error) {
 	return b.Put([]byte(field), []byte(value))
 }
 
-func (t *rtx) SADD(key string, member string) (err error) {
-	return t.HSET(key, member, "")
+func (t *rtx) SADD(key string, member ...string) (err error) {
+	for _, m := range member {
+		if err = t.HSET(key, m, ""); err != nil {
+			return
+		}
+	}
+	return
 }
 
 func (t *rtx) SCARD(key string) (count int, err error) {
@@ -122,6 +130,44 @@ func (t *rtx) SMEMBERS(key string) (members []string, err error) {
 	return t.HKEYS(key)
 }
 
-func (t *rtx) SREM(key string, member string) (err error) {
-	return t.HDEL(key, member)
+func (t *rtx) SREM(key string, member ...string) (err error) {
+	for _, m := range member {
+		if err = t.HDEL(key, m); err != nil {
+			return
+		}
+	}
+	return
+}
+
+func (t *rtx) SDIFF(key string, diffKeys ...string) (members []string, err error) {
+	runner := make(map[string]struct{})
+	members, err = t.SMEMBERS(key)
+	if err != nil {
+		return
+	}
+
+	for _, k := range members {
+		runner[k] = struct{}{}
+	}
+
+	for _, k := range diffKeys {
+		diffMembers, err := t.SMEMBERS(k)
+		if err != nil {
+			return nil, err
+		}
+		for _, m := range diffMembers {
+			delete(runner, m)
+		}
+	}
+	return maps.Keys(runner), nil
+}
+
+func (t *rtx) SMOVE(source string, destination string, member string) error {
+	if isMember, err := t.SISMEMBER(source, member); err != nil || !isMember {
+		return err
+	}
+	if err := t.SADD(destination, member); err != nil {
+		return err
+	}
+	return t.SREM(source, member)
 }

@@ -88,9 +88,9 @@ func (db *db) HSET(key string, field string, value string) (err error) {
 	})
 }
 
-func (db *db) SADD(key string, member string) (err error) {
+func (db *db) SADD(key string, members ...string) (err error) {
 	return db.boltDB.Update(func(tx *bolt.Tx) error {
-		return NewTx(tx).SADD(key, member)
+		return NewTx(tx).SADD(key, members...)
 	})
 }
 
@@ -115,8 +115,21 @@ func (db *db) SMEMBERS(key string) (members []string, err error) {
 	})
 }
 
-func (db *db) SREM(key string, member string) (err error) {
+func (db *db) SREM(key string, member ...string) (err error) {
 	return db.boltDB.Update(func(tx *bolt.Tx) error {
-		return NewTx(tx).SREM(key, member)
+		return NewTx(tx).SREM(key, member...)
+	})
+}
+
+func (db *db) SMOVE(source string, destination string, member string) error {
+	return db.boltDB.Update(func(tx *bolt.Tx) error {
+		return NewTx(tx).SMOVE(source, destination, member)
+	})
+}
+
+func (db *db) SDIFF(key string, diffKeys ...string) (members []string, err error) {
+	return members, db.boltDB.View(func(tx *bolt.Tx) error {
+		members, err = NewTx(tx).SDIFF(key, diffKeys...)
+		return err
 	})
 }

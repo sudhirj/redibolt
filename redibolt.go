@@ -18,8 +18,10 @@ type WriteTx interface {
 	HMSET(key string, fields map[string]string) (err error)
 	HSET(key string, field string, value string) (err error)
 
-	SADD(key string, member string) (err error)
-	SREM(key string, member string) (err error)
+	SADD(key string, member ...string) (err error)
+	SREM(key string, member ...string) (err error)
+	SMOVE(source string, destination string, member string) error
+	SDIFF(key string, diffKeys ...string) (members []string, err error)
 }
 
 type Tx interface {

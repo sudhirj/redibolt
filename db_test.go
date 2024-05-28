@@ -161,6 +161,32 @@ func TestSets(t *testing.T) {
 	isMember, err = rdb.SISMEMBER("s1", "nonmember")
 	assert.NoError(t, err)
 	assert.False(t, isMember)
+
+	err = rdb.SMOVE("s1", "s3", "m2")
+	assert.NoError(t, err)
+	count, err = rdb.SCARD("s1")
+	assert.NoError(t, err)
+	assert.Equal(t, 0, count)
+	count, err = rdb.SCARD("s3")
+	assert.NoError(t, err)
+	assert.Equal(t, 1, count)
+	isMember, err = rdb.SISMEMBER("s3", "m2")
+	assert.NoError(t, err)
+	assert.True(t, isMember)
+}
+
+func TestMultiSetOps(t *testing.T) {
+	rdb := NewDB(makeTestDB(t))
+
+	err := rdb.SADD("s1", "m1", "m2")
+	assert.NoError(t, err)
+
+	err = rdb.SADD("s2", "m2", "m3")
+	assert.NoError(t, err)
+
+	diffMembers, err := rdb.SDIFF("s1", "s2")
+	assert.NoError(t, err)
+	assert.ElementsMatch(t, []string{"m1"}, diffMembers)
 }
 
 func TestTransactions(t *testing.T) {
