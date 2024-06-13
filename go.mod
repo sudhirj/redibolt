@@ -3,8 +3,8 @@ module github.com/sudhirj/redibolt
 go 1.22.3
 
 require (
-	github.com/boltdb/bolt v1.3.1
 	github.com/stretchr/testify v1.9.0
+	go.etcd.io/bbolt v1.3.10
 	golang.org/x/exp v0.0.0-20240604190554-fc45aab8b7f8
 )
 

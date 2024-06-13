@@ -1,6 +1,6 @@
 package redibolt
 
-import "github.com/boltdb/bolt"
+import bolt "go.etcd.io/bbolt"
 
 type db struct {
 	boltDB *bolt.DB

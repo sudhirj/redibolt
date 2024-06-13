@@ -1,7 +1,7 @@
 package redibolt
 
 import (
-	"github.com/boltdb/bolt"
+	bolt "go.etcd.io/bbolt"
 	"golang.org/x/exp/maps"
 )
 

@@ -1,8 +1,8 @@
 package redibolt
 
 import (
-	"github.com/boltdb/bolt"
 	"github.com/stretchr/testify/assert"
+	bolt "go.etcd.io/bbolt"
 	"os"
 	"testing"
 )
